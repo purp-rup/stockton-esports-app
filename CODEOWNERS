@@ -1,0 +1,9 @@
+# Example usage
+
+# Core functionality - changes here should be rare
+/src/app.py                   @purp-rup
+/src/backend/database.py      @purp-rup
+/src/backend/routers/auth.py  @purp-rup
+
+# The frontend will need refactored soon to be more object oriented.
+/src/static/   @purp-rup

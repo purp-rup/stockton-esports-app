@@ -1,4 +1,4 @@
-# Stockton Esports App
+# Esports Management Tool
 
 ## Highlights
 

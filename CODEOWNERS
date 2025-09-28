@@ -1,9 +1,5 @@
 # Example usage
 
 # Core functionality - changes here should be rare
-/src/app.py                   @purp-rup
-/src/backend/database.py      @purp-rup
-/src/backend/routers/auth.py  @purp-rup
-
-# --------
-/src/static/   @purp-rup
+/EsportsManagementTool/EsportsManagementTool/__init__.py           @purp-rup
+/EsportsManagementTool/EsportsManagementTool/exampleModule.py      @purp-rup

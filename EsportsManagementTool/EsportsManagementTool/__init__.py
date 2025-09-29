@@ -13,3 +13,6 @@ import EsportsManagementTool.exampleModule
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/test")
+def test():
+    return "<h1>This is a test for committing the __init__.py file</h1>"

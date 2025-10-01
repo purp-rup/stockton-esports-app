@@ -8,6 +8,16 @@ After cloning, you will need to create a virtual environment within the project 
 </p>
 <br />
 
+Now, let's install bcrypt:
+```console
+pip install bcrypt
+```
+
+Next, install MySQLdb:
+```console
+pip install flask-mysqldb
+```
+
 To run in terminal:
 
 ```console

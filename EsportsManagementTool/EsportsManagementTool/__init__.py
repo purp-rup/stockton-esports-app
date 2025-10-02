@@ -4,10 +4,17 @@
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
+from flask_mail import Mail, Message
 import MySQLdb.cursors
 import re
 import bcrypt
+import secrets
+from dotenv import load_dotenv
+import os
+from datetime import datetime, timedelta
 app = Flask(__name__)
+
+mail = Mail(app)
 
 # Module imports
 import EsportsManagementTool.exampleModule
@@ -16,10 +23,17 @@ import EsportsManagementTool.exampleModule
 app.secret_key = 'your secret key'
 
 # Enter your database connection details below
-app.config['MYSQL_HOST'] = '134.210.208.51'
-app.config['MYSQL_USER'] = 'tableconfig'
-app.config['MYSQL_PASSWORD'] = 'T4b1eCR34TI0ni$FuN*@#'
-app.config['MYSQL_DB'] = 'esportsmanagementtool'
+app.config['MYSQL_HOST'] = os.environ.get('MYSQL_HOST')
+app.config['MYSQL_USER'] = os.environ.get('MYSQL_USER')
+app.config['MYSQL_PASSWORD'] = os.environ.get('MYSQL_PASSWORD')
+app.config['MYSQL_DB'] = os.environ.get('MYSQL_DB')
+
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 app.config['MYSQL_SSL_DISABLED'] = False
 app.config['MYSQL_CUSTOM_OPTIONS'] = {
@@ -40,6 +54,45 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 
+def send_verify_email(email, token):
+    verify_url = url_for('verify_email', token=token, _external=True)
+    msg = Message('Verify Your Stockton University Email Account', recipients=[email])
+    msg.body = f'''Hello,
+    Please click the link below to verify your Stockton Esports Management Tool account:
+
+    {verify_url}
+
+    This link will expire after 24 hours.
+
+    If you did not create this account, please ignore this email.
+
+    - 5 Brain Cells: SU Esports MGMT Tool Team.
+    '''
+    mail.send(msg)
+
+
+@app.route('/verify/<token>')
+def verify_email(token):
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    try:
+        cursor.execute(
+            'SELECT * FROM users WHERE verification_token = %s AND token_expiry > NOW()', (token,))
+        user = cursor.fetchone()
+
+        if user:
+            cursor.execute(
+                'UPDATE users SET is_verified = TRUE, verification_token = NULL, token_expiry = NULL where id = %s',
+                (user['id'],)
+            )
+            mysql.connection.commit()
+            flash('Email is successfully verified! You can now log in.', 'success')
+            return redirect(url_for('login'))
+        else:
+            flash('ERROR: Verification link is invalid/expired.', 'error')
+            return redirect(url_for('register'))
+    finally:
+        cursor.close()
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     msg = ''
@@ -52,13 +105,32 @@ def login():
             cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
             account = cursor.fetchone()
 
-            if account and bcrypt.checkpw(password.encode('utf-8'), account['password'].encode('utf-8')):
-                session['loggedin'] = True
-                session['id'] = account['id']
-                session['username'] = account['username']
-                return redirect(url_for('profile'))
+            if account:
+                if account and bcrypt.checkpw(password.encode('utf-8'), account['password'].encode('utf-8')):
+                    if not account.get('is_verified', False):
+                        flash('Account is still not verified! A new email has been sent, check your inbox!')
+                        verification_token = secrets.token_urlsafe(32)
+                        token_expiry = datetime.now() + timedelta(hours=24)
+
+                        cursor.execute(
+                            'UPDATE users SET verification_token = %s, token_expiry = %s WHERE username = %s',
+                            (verification_token, token_expiry, username))
+                        mysql.connection.commit()
+
+                        try:
+                            send_verify_email(account['email'], verification_token)
+                            msg = 'Email sent.'
+                        except Exception as e:
+                            msg = f'Email failed to send. Error: {str(e)}'
+                    else:
+                        session['loggedin'] = True
+                        session['id'] = account['id']
+                        session['username'] = account['username']
+                        return redirect(url_for('profile'))
+                else:
+                    msg = 'Incorrect username/password!'
             else:
-                msg = 'Incorrect username/password!'
+                msg = 'Account does not exist!'
         finally:
             cursor.close()
 

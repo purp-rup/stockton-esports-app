@@ -24,7 +24,7 @@ pip install flask-mail
 pip install dotenv
 ```
 
-Finally, you will need to go to .env, and populate the variables
+Finally, you will need to go to .env and populate the variables
 
 Now, run in terminal:
 ```console

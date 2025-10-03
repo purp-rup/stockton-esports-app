@@ -8,20 +8,29 @@ After cloning, you will need to create a virtual environment within the project 
 </p>
 <br />
 
-Now, let's install bcrypt:
+Let's install bcrypt:
 ```console
 pip install bcrypt
 ```
 
-Next, install MySQLdb:
+Next, install the following:
 ```console
 pip install flask-mysqldb
 ```
+```console
+pip install flask-mail
+```
+```console
+pip install dotenv
+```
 
-To run in terminal:
+Finally, you will need to go to .env, and populate the variables
 
+Now, run in terminal:
 ```console
 flask --app EsportsManagementTool run --debug
 ```
 
-## 
+## When Committing...
+
+Do **NOT** commit your .env file to the main branch.

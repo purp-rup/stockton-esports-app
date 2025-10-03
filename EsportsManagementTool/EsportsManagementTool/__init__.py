@@ -14,7 +14,6 @@ import os
 from datetime import datetime, timedelta
 app = Flask(__name__)
 
-mail = Mail(app)
 
 # Module imports
 import EsportsManagementTool.exampleModule
@@ -47,6 +46,7 @@ SSL security and bcrypt set to hash and salt passwords, and to ensure no data
 leakage across packet transferring. 
 """
 mysql = MySQL(app)
+mail = Mail(app)
 
 # For production, force HTTPS
 app.config['SESSION_COOKIE_SECURE'] = True

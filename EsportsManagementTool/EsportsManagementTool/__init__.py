@@ -203,6 +203,22 @@ def profile():
             cursor.close()
     return redirect(url_for('login'))
 
+@app.route('/calendar')
+def calendar():
+    events = [
+        {"date": "2025-10-01", "title": "smash practice of doom"},
+        {"date": "2025-10-03", "title": "fortnite sesh"},
+        {"date": "2025-10-05", "title": "d's birthday party"},
+    ]
+    return render_template("calendar.html", events=events)
+
 @app.route("/test")
 def test():
     return "<p> This is a test </p>"
+
+# This is used for debugging, It will show the app routes that are registered.
+if __name__ != '__main__':
+    print("\n=== REGISTERED ROUTES ===")
+    for rule in app.url_map.iter_rules():
+        print(f"{rule.endpoint}: {rule.rule}")
+    print("=========================\n")

@@ -1,0 +1,44 @@
+{% extends 'layout.html' %}
+
+{% block title %}Event Register{% endblock %}
+
+{% block content %}
+<html>
+	<head>
+		<meta charset = "utf-8">
+        <!--Sets title of page and establishes links to css and a font family -->
+		<title>Event Registry</title>
+		<link rel = "stylesheet" href = "{{ url_for('static', filename='general.css') }}">
+		<link rel = "stylesheet" href = "https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+	</head>
+    <!-- Beginning of body. Sets up banner at top of page. -->
+    <body>
+        <div class = "navtop">
+            <div>
+                <h1>Event Registration</h1>
+                <a href = "/"> <i class = "fas fa-home"> </i>Home</a>
+                <a href = "/events"> <i class = "fas fa-calendar"> </i>View Registration</a>
+            </div>
+        </div>
+        <!-- Begins registration portion of page. -->
+        <div class = "event-registration">
+            <h1>Register an Event!</h1>
+
+            <!-- Different input styles for different fields. -->
+            <form method = "post">
+                <input type = "text" name = "eventName" placeholder = "Event Name" required> <br>
+                <input type = "date" name = "eventDate" required><br>
+                <input type = "time" name = "eventStartTime" required><br>
+                <input type = "time" name = "eventEndTime" required><br>
+                <input type="text" name = "eventDescription" placeholder = "Event Description" required> <br>
+
+                <input type = "submit" value = "Register">
+            </form>
+
+            {% if msg %}
+                <p style = "text-align: center; color: #3274d6;"> {{ msg }}</p>
+            {% endif %}
+        </div>
+    </body>
+</html>
+{% endblock %}

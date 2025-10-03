@@ -203,6 +203,40 @@ def profile():
             cursor.close()
     return redirect(url_for('login'))
 
+#App route to get to event registration.
+@app.route('/event-register', methods=['GET', 'POST'])
+#eventRegister method
+def eventRegister():
+    msg = ''
+    if request.method == 'POST':
+
+        #Receives a user response for all of eventName, eventDate, eventTime, and eventDescription
+        eventName = request.form.get('eventName', '').strip()
+        eventDate = request.form.get('eventDate', '').strip()
+        eventTime = request.form.get('eventTime', '').strip()
+        eventDescription = request.form.get('eventDescription', '').strip()
+
+    #Does what needs to be done if the fields are filled out.
+        if eventName and eventDate and eventTime and eventDescription:
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            try:
+                cursor.execute('INSERT INTO events (name, date, time, description) VALUES (%s, %s, %s, %s)', (eventName, eventDate, eventTime, eventDescription))
+
+                #Confirms that the event is registered.
+                mysql.connection.commit()
+                msg = 'Event Registered!'
+
+            except Exception as e:
+                msg = f'Error: {str(e)}'
+            finally:
+                cursor.close()
+
+        #Prompts user to fill out all fields if they leave any/all blank.
+        else:
+            msg = 'Please fill out all fields!'
+
+    #Uses the event-register html file to render the page.
+    return render_template('event-register.html', msg=msg)
 @app.route('/calendar')
 def calendar():
     events = [

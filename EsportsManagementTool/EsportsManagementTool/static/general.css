@@ -10,12 +10,16 @@ body {
   	background-color: #435165;
   	margin: 0;
 }
+
+/* Login/Register background*/
 .login, .register {
   	width: 400px;
   	background-color: #ffffff;
   	box-shadow: 0 0 9px 0 rgba(0, 0, 0, 0.3);
   	margin: 100px auto;
 }
+
+/* Login/Registry header text*/
 .login h1, .register h1 {
   	text-align: center;
   	color: #5b6574;
@@ -23,10 +27,14 @@ body {
   	padding: 20px 0 20px 0;
   	border-bottom: 1px solid #dee0e4;
 }
+
+/* Login and Registration link positions*/
 .login .links, .register .links {
   	display: flex;
   	padding: 0 15px;
 }
+
+/*Login and Registration link text*/
 .login .links a, .register .links a {
   	color: #adb2ba;
   	text-decoration: none;
@@ -34,19 +42,27 @@ body {
   	padding: 0 10px 10px 10px;
   	font-weight: bold;
 }
+
+/*Hovering over login and registration links*/
 .login .links a:hover, .register .links a:hover {
   	color: #9da3ac;
 }
+
+/*Login/Registry links while on their respective page*/
 .login .links a.active, .register .links a.active {
   	border-bottom: 3px solid #3274d6;
   	color: #3274d6;
 }
+
+/*Box surrounding the registration/login fields*/
 .login form, .register form {
   	display: flex;
   	flex-wrap: wrap;
   	justify-content: center;
   	padding-top: 20px;
 }
+
+/*Form icons*/
 .login form label, .register form label {
   	display: flex;
   	justify-content: center;
@@ -56,6 +72,8 @@ body {
   	background-color: #3274d6;
   	color: #ffffff;
 }
+
+/*Boxes for passwords, emails, etc.*/
 .login form input[type="password"], .login form input[type="text"], .login form input[type="email"], .register form input[type="password"], .register form input[type="text"], .register form input[type="email"] {
   	width: 310px;
   	height: 50px;
@@ -63,6 +81,8 @@ body {
   	margin-bottom: 20px;
   	padding: 0 15px;
 }
+
+/*Submitting registry/login buttons*/
 .login form input[type="submit"], .register form input[type="submit"] {
   	width: 100%;
   	padding: 15px;
@@ -74,26 +94,36 @@ body {
   	color: #ffffff;
   	transition: background-color 0.2s;
 }
+
+/*Hovering over the submission buttons*/
 .login form input[type="submit"]:hover, .register form input[type="submit"]:hover {
   	background-color: #2868c7;
   	transition: background-color 0.2s;
 }
+
+/*Background for banner above profile page*/
 .navtop {
   	background-color: #2f3947;
   	height: 60px;
   	width: 100%;
   	border: 0;
 }
+
+/*Text box for banner words*/
 .navtop div {
   	display: flex;
   	margin: 0 auto;
   	width: 1000px;
   	height: 100%;
 }
+
+/*don't know how to describe it, alignment for banner text*/
 .navtop div h1, .navtop div a {
   	display: inline-flex;
   	align-items: center;
 }
+
+/*Text in banner*/
 .navtop div h1 {
   	flex: 1;
   	font-size: 24px;
@@ -102,6 +132,8 @@ body {
   	color: #eaebed;
   	font-weight: normal;
 }
+
+/*Icon guy on banner*/
 .navtop div a {
   	padding: 0 20px;
   	text-decoration: none;
@@ -111,16 +143,24 @@ body {
 .navtop div a i {
   	padding: 2px 8px 0 0;
 }
+
+/*Hovering on icon guy*/
 .navtop div a:hover {
   	color: #eaebed;
 }
+
+/*Background for profile page*/
 body.loggedin {
   	background-color: #f3f4f7;
 }
+
+/*Profile page*/
 .content {
   	width: 1000px;
   	margin: 0 auto;
 }
+
+/*Profile page text above actual login credentials*/
 .content h2 {
   	margin: 0;
   	padding: 25px 0;
@@ -128,6 +168,8 @@ body.loggedin {
   	border-bottom: 1px solid #e0e0e3;
   	color: #4a536e;
 }
+
+/*Background box holding logins details*/
 .content > p, .content > div {
   	box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
   	margin: 25px 0;
@@ -137,6 +179,8 @@ body.loggedin {
 .content > p table td, .content > div table td {
 	padding: 5px;
 }
+
+/*Login detail labels*/
 .content > p table td:first-child, .content > div table td:first-child {
 	font-weight: bold;
 	color: #4a536e;
@@ -147,6 +191,10 @@ body.loggedin {
 	margin: 0 0 10px 0;
 }
 
+.event-registration h1 {
+    font-size: 24px;
+    color: #000000
+}
 /* Start of calender.html objects */
 .calendar {
     display: grid;

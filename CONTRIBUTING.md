@@ -2,34 +2,31 @@
 
 ## Setup
 After cloning, you will need to create a virtual environment within the project to run the application. You can follow [these instructions](https://flask.palletsprojects.com/en/stable/installation/#create-an-environment).
-- You won't need to run the mkdir command after cloning, just right click the highlighted directory as shown in the image below > Copy Path/Reference... > Absolute Path, then continue with the cd command
+- You won't need to run the mkdir command after cloning, just right click the highlighted directory as shown in the image below *> Copy Path/Reference... > Absolute Path*, then continue with the cd command
 <p align="center">
   <img width="390" height="344" alt="Directory to be selected" src="https://github.com/user-attachments/assets/2f32993e-fd39-4dae-b629-e7a516eb3f91" />
 </p>
 <br />
 
-Let's install bcrypt:
+Next, **install dependencies**:
 ```console
-pip install bcrypt
+pip install -r requirements.txt
 ```
 
-Next, install the following:
-```console
-pip install flask-mysqldb
-```
-```console
-pip install flask-mail
-```
-```console
-pip install dotenv
-```
+Then, you will need to go to .env and **populate** the variables.
 
-Finally, you will need to go to .env and populate the variables
+### Running MySQL
+Start MySQL in your console (or through AMPPS), then run the following:
+```console
+mysql -h (IP) -u (user) -p
+```
+The IP can be found in the .env variables.
 
 Now, run in terminal:
 ```console
 flask --app EsportsManagementTool run --debug
 ```
+
 
 ## When Committing...
 

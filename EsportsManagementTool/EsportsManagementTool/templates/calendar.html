@@ -1,0 +1,47 @@
+<!--Claude AI assisted in the creation of this html document-->
+{% extends "layout.html" %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+    <div class="calendar-wrapper">
+        <!-- Month and Year Header -->
+        <h1 class="calendar-month-year">OCTOBER 2025</h1>
+
+        <!-- Days of week header -->
+        <div class="calendar-header">
+            <div class="calendar-day-name">SUN</div>
+            <div class="calendar-day-name">MON</div>
+            <div class="calendar-day-name">TUES</div>
+            <div class="calendar-day-name">WED</div>
+            <div class="calendar-day-name">THURS</div>
+            <div class="calendar-day-name">FRI</div>
+            <div class="calendar-day-name">SAT</div>
+        </div>
+
+        <!-- Calendar grid -->
+        <div class="calendar-grid">
+            <!-- Empty cells before October 1st (Oct 1 is Wednesday, so 3 empty cells) -->
+            <div class="calendar-cell empty"></div>
+            <div class="calendar-cell empty"></div>
+            <div class="calendar-cell empty"></div>
+
+            <!-- Days 1-31 -->
+            {% for day in range(1, 32) %}
+                <div class="calendar-cell">
+                    <div class="day-number">{{ day }}</div>
+                    
+                    <!-- Show events that match this day -->
+                    <div class="events-container">
+                        {% for event in events %}
+                            {% set day_string = '2025-10-%02d'|format(day) %}
+                            {% if event.date == day_string %}
+                                <div class="event">{{ event.title }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

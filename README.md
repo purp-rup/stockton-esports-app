@@ -20,6 +20,11 @@ By integrating existing workflows into a single, intuitive platform, the tool re
 ### Design
 This application was developed using the Flask framework, making use of HTML, Python, and MySQL.
 
+### Dashboard preview
+- After logging in, visit `/dashboard` (linked from the navigation bar) to see the current implementation of the Stockton Esports landing experience.
+- The route is registered in `EsportsManagementTool/__init__.py` and queries both the signed-in user and upcoming events so the page populates with live data from MySQL.
+- Styling assets live in `EsportsManagementTool/static/dashboard.css`, which mirrors the latest layout assets we have locally. Once the official Figma export is available, replace the placeholder styles in that file with the production-ready rules.
+
 ## Authors
 
 This project was developed by [Jackson Campbell](https://github.com/JCamp74), [Rachel Hussmann](https://github.com/violetann894), [Hayden Seiberlich](https://github.com/seiberlichiamo), [Alexander DeSilvio](https://github.com/Alakazam936), and [Andrew Miraglia](https://github.com/purp-rup).

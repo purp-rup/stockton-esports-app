@@ -297,14 +297,19 @@ def eventRegister():
         #Receives a user response for all of eventName, eventDate, eventTime, and eventDescription
         eventName = request.form.get('eventName', '').strip()
         eventDate = request.form.get('eventDate', '').strip()
-        eventTime = request.form.get('eventTime', '').strip()
+        eventStartTime = request.form.get('eventStartTime', '').strip()
+        eventEndTime = request.form.get('eventEndTime', '').strip()
         eventDescription = request.form.get('eventDescription', '').strip()
 
     #Does what needs to be done if the fields are filled out.
-        if eventName and eventDate and eventTime and eventDescription:
+        if eventName and eventDate and eventStartTime and eventEndTime and eventDescription:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             try:
-                cursor.execute('INSERT INTO events (name, date, time, description) VALUES (%s, %s, %s, %s)', (eventName, eventDate, eventTime, eventDescription))
+                cursor.execute(
+                    'INSERT INTO generalevents (EventName, Date, StartTime, EndTime, Description) '
+                    'VALUES (%s, %s, %s, %s, %s)',
+                    (eventName, eventDate, eventStartTime, eventEndTime, eventDescription)
+                )
 
                 #Confirms that the event is registered.
                 mysql.connection.commit()

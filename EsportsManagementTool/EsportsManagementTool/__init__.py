@@ -212,18 +212,17 @@ def dashboard():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     try:
         cursor.execute(
-            'SELECT id, username, firstname, lastname, email, is_verified, date '
+            'SELECT id, username, firstname, lastname, email, is_verified, created_at '
             'FROM users WHERE id = %s',
             (session['id'],)
         )
         user = cursor.fetchone() or {}
 
         cursor.execute(
-            'SELECT EventName AS name, Date AS date, StartTime AS start_time, '
-            'EndTime AS end_time, Description AS description '
-            'FROM generalevents '
-            'WHERE Date IS NULL OR Date >= CURDATE() '
-            'ORDER BY Date IS NULL, Date ASC, StartTime ASC '
+            'SELECT name, date, time, description '
+            'FROM events '
+            'WHERE date IS NULL OR date >= CURDATE() '
+            'ORDER BY date IS NULL, date ASC, time ASC '
             'LIMIT 5'
         )
         raw_events = cursor.fetchall() or []
@@ -252,46 +251,16 @@ def dashboard():
         if not parsed_date and isinstance(event_date, str):
             raw_label = event_date
 
-        start_time = event.get('start_time')
-        end_time = event.get('end_time')
-
-        def _format_time(value):
-            if value is None:
-                return ''
-            if hasattr(value, 'strftime'):
-                try:
-                    formatted = value.strftime('%I:%M %p')
-                    return formatted.lstrip('0')
-                except (TypeError, ValueError):
-                    return str(value)
-            if isinstance(value, str):
-                for fmt in ('%H:%M:%S', '%H:%M'):
-                    try:
-                        parsed = datetime.strptime(value, fmt)
-                        formatted = parsed.strftime('%I:%M %p')
-                        return formatted.lstrip('0')
-                    except ValueError:
-                        continue
-                return value
-            return str(value)
-
-        formatted_start = _format_time(start_time)
-        formatted_end = _format_time(end_time)
-        if formatted_start and formatted_end:
-            time_label = f"{formatted_start} – {formatted_end}"
-        else:
-            time_label = formatted_start or formatted_end
-
         formatted_events.append({
             'name': event.get('name'),
-            'time': time_label,
+            'time': event.get('time'),
             'description': event.get('description'),
             'day': day_label,
             'month': month_label,
             'raw_date_label': raw_label,
         })
 
-    member_since = user.get('date')
+    member_since = user.get('created_at')
     if isinstance(member_since, str):
         for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d'):
             try:

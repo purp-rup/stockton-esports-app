@@ -26,37 +26,37 @@ This application was developed using the Flask framework, making use of HTML, Py
 - Styling assets live in `EsportsManagementTool/static/dashboard.css`, which mirrors the latest layout assets we have locally. Once the official Figma export is available, replace the placeholder styles in that file with the production-ready rules.
 
 ### Required MySQL tables
-The Flask routes interact with the `users` and `generalevents` tables already present in the production database. Make sure your local environment mirrors the structure below so column lookups (like the dashboard's member-since date) resolve correctly.
+To eliminate `Unknown column 'created_at' in 'field list'` and other schema errors, make sure these tables exist in the configured MySQL database. Adjust column lengths if you need to store longer values.
 
 ```sql
 CREATE TABLE IF NOT EXISTS users (
-    id INT NOT NULL AUTO_INCREMENT,
-    firstname VARCHAR(20) NOT NULL,
-    lastname VARCHAR(20) NOT NULL,
-    username VARCHAR(20) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    firstname VARCHAR(100) NOT NULL,
+    lastname VARCHAR(100) NOT NULL,
+    username VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    is_verified TINYINT(1) DEFAULT 0,
+    email VARCHAR(255) NOT NULL,
+    is_verified TINYINT(1) NOT NULL DEFAULT 0,
     verification_token VARCHAR(255) DEFAULT NULL,
     token_expiry DATETIME DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
-    UNIQUE KEY uq_users_username (username)
+    UNIQUE KEY uq_users_username (username),
+    UNIQUE KEY uq_users_email (email)
 );
 
-CREATE TABLE IF NOT EXISTS generalevents (
-    EventID INT NOT NULL AUTO_INCREMENT,
-    EventName VARCHAR(60) NOT NULL,
-    Date DATE NOT NULL,
-    StartTime TIME NOT NULL,
-    EndTime TIME NOT NULL,
-    Description VARCHAR(250) NOT NULL,
-    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (EventID)
+CREATE TABLE IF NOT EXISTS events (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    date DATE DEFAULT NULL,
+    time TIME DEFAULT NULL,
+    description TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
 );
 ```
 
-Both tables rely on the connection settings defined in `EsportsManagementTool/__init__.py`. Run the statements above (after setting your `MYSQL_*` environment variables) before launching the Flask app, or adjust them to match your existing data types and lengths.
+Both tables rely on the same connection details defined in `EsportsManagementTool/__init__.py`. Run the statements above in the target database (after setting your `MYSQL_*` environment variables) before launching the Flask app.
 
 ## Authors
 

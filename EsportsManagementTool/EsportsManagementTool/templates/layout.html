@@ -4,11 +4,13 @@
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='general.css') }}">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+        {% block extra_css %}{% endblock %}
     </head>
     <body class="loggedin">
         <nav class="navtop">
             <div>
                 <h1>Esports Management Tool</h1>
+                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
                 <a href="{{ url_for('profile') }}"><i class="fas fa-user-circle"></i></a>
             </div>
         </nav>

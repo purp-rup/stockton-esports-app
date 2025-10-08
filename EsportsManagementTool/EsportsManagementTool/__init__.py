@@ -203,6 +203,90 @@ def profile():
             cursor.close()
     return redirect(url_for('login'))
 
+
+@app.route('/dashboard')
+def dashboard():
+    if 'loggedin' not in session:
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    try:
+        cursor.execute(
+            'SELECT id, username, firstname, lastname, email, is_verified, created_at '
+            'FROM users WHERE id = %s',
+            (session['id'],)
+        )
+        user = cursor.fetchone() or {}
+
+        cursor.execute(
+            'SELECT name, date, time, description '
+            'FROM events '
+            'WHERE date IS NULL OR date >= CURDATE() '
+            'ORDER BY date IS NULL, date ASC, time ASC '
+            'LIMIT 5'
+        )
+        raw_events = cursor.fetchall() or []
+    finally:
+        cursor.close()
+
+    formatted_events = []
+    for event in raw_events:
+        event_date = event.get('date')
+        parsed_date = None
+        if isinstance(event_date, datetime):
+            parsed_date = event_date.date()
+        elif hasattr(event_date, 'strftime'):
+            parsed_date = event_date
+        elif isinstance(event_date, str) and event_date:
+            for fmt in ('%Y-%m-%d', '%Y-%m-%d %H:%M:%S'):
+                try:
+                    parsed_date = datetime.strptime(event_date, fmt).date()
+                    break
+                except ValueError:
+                    continue
+
+        day_label = parsed_date.strftime('%d') if parsed_date else ''
+        month_label = parsed_date.strftime('%b') if parsed_date else ''
+        raw_label = ''
+        if not parsed_date and isinstance(event_date, str):
+            raw_label = event_date
+
+        formatted_events.append({
+            'name': event.get('name'),
+            'time': event.get('time'),
+            'description': event.get('description'),
+            'day': day_label,
+            'month': month_label,
+            'raw_date_label': raw_label,
+        })
+
+    member_since = user.get('created_at')
+    if isinstance(member_since, str):
+        for fmt in ('%Y-%m-%d %H:%M:%S', '%Y-%m-%d'):
+            try:
+                member_since = datetime.strptime(member_since, fmt)
+                break
+            except ValueError:
+                continue
+    elif member_since and hasattr(member_since, 'strftime'):
+        # Already a datetime/date-like object
+        pass
+    
+    member_since_display = None
+    if member_since and hasattr(member_since, 'strftime'):
+        member_since_display = member_since.strftime('%B %d, %Y')
+
+    context = {
+        'user': user,
+        'display_name': user.get('firstname') or user.get('username') or 'Player',
+        'is_verified': bool(user.get('is_verified')),
+        'member_since': member_since_display,
+        'events': formatted_events,
+        'events_count': len(formatted_events),
+    }
+
+    return render_template('dashboard.html', **context)
+
 #App route to get to event registration.
 @app.route('/event-register', methods=['GET', 'POST'])
 #eventRegister method

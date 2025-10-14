@@ -109,6 +109,42 @@ body {
   	border: 0;
 }
 
+/*For temporary Event-Register button location*/
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.event-register-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.temporary-note {
+    font-size: 0.8rem;
+    color: #999;
+    margin: 0 0 4px 0;
+    text-align: right;
+}
+
+.event-register-btn {
+    background-color: #3274d6;
+    color: #fff;
+    padding: 8px 14px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.event-register-btn:hover {
+    background-color: #285bb5;
+}
+/*End of temporary button section*/
+
 /*Text box for banner words*/
 .navtop div {
   	display: flex;
@@ -291,3 +327,117 @@ body.loggedin {
     line-height: 1.3;
 }
 /* End of calender.html objects */
+
+/*Start of event-register.html objects*/
+.create-event-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 0;
+}
+
+.create-event-modal {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 400px;
+    padding: 25px 30px;
+}
+
+.create-event-modal h2 {
+    margin-bottom: 5px;
+    font-size: 1.5rem;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.event-form label {
+    display: block;
+    font-weight: 600;
+    margin-top: 12px;
+    margin-bottom: 6px;
+}
+
+.event-form input,
+.event-form select,
+.event-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.form-group {
+    flex: 1 1 120px;
+    min-width: 120px;
+}
+
+.event-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.create-btn {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 18px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.create-btn:hover {
+    background-color: #333;
+}
+
+.message {
+    text-align: center;
+    color: #3274d6;
+    margin-top: 10px;
+}
+
+/* Custom location input animation */
+#customLocation {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+#customLocation.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+    display: block !important;
+}
+
+@media (max-width: 500px) {
+    .create-event-modal {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+}
+
+/*End of event-register objects*/

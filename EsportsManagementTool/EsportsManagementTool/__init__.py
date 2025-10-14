@@ -95,6 +95,8 @@ def verify_email(token):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'loggedin' in session:
+        return redirect(url_for('dashboard'))
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
         username = request.form['username']
@@ -126,7 +128,7 @@ def login():
                         session['loggedin'] = True
                         session['id'] = account['id']
                         session['username'] = account['username']
-                        return redirect(url_for('profile'))
+                        return redirect(url_for('dashboard'))
                 else:
                     msg = 'Incorrect username/password!'
             else:
@@ -148,6 +150,8 @@ def logout():
 
 @app.route('/', methods=['GET', 'POST'])
 def register():
+    if 'loggedin' in session:
+        return redirect(url_for('dashboard'))
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'passwordconfirm' in request.form and 'email' in request.form:
 
@@ -212,17 +216,17 @@ def dashboard():
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     try:
         cursor.execute(
-            'SELECT id, username, firstname, lastname, email, is_verified, created_at '
+            'SELECT id, username, firstname, lastname, email, is_verified '
             'FROM users WHERE id = %s',
             (session['id'],)
         )
         user = cursor.fetchone() or {}
 
         cursor.execute(
-            'SELECT name, date, time, description '
-            'FROM events '
+            'SELECT eventname, date, starttime, description '
+            'FROM generalevents '
             'WHERE date IS NULL OR date >= CURDATE() '
-            'ORDER BY date IS NULL, date ASC, time ASC '
+            'ORDER BY date IS NULL, date ASC, starttime ASC '
             'LIMIT 5'
         )
         raw_events = cursor.fetchall() or []

@@ -12,11 +12,16 @@ import secrets
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
+from apscheduler.schedulers.background import BackgroundScheduler
+import mysql.connector
+from mysql.connector import Error
+
 app = Flask(__name__)
 
 
 # Module imports
 import EsportsManagementTool.exampleModule
+import EsportsManagementTool.EventNotificationManager
 
 # Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = 'your secret key'

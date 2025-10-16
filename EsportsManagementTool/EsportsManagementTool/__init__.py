@@ -85,7 +85,7 @@ def verify_email(token):
                 (user['id'],)
             )
             mysql.connection.commit()
-            flash('Email is successfully verified! You can now log in.', 'success')
+            flash('Email is successfully verified, welcome to Stockton Esports! You can now log in.', 'success')
             return redirect(url_for('login'))
         else:
             flash('ERROR: Verification link is invalid/expired.', 'error')
@@ -181,7 +181,7 @@ def register():
                     'INSERT INTO users (firstname, lastname, username, password, email) VALUES (%s, %s, %s, %s, %s)',
                     (firstname, lastname, username, hashed_password, email))
                 mysql.connection.commit()
-                msg = 'You have successfully registered! Welcome to Stockton Esports!'
+                msg = 'You have successfully created an account! Please check your email for verification!'
         finally:
             cursor.close()
 
@@ -213,15 +213,21 @@ def eventRegister():
         #Receives a user response for all of eventName, eventDate, eventTime, and eventDescription
         eventName = request.form.get('eventName', '').strip()
         eventDate = request.form.get('eventDate', '').strip()
-        eventTime = request.form.get('eventTime', '').strip()
+        eventType = request.form.get('eventType', '').strip()
+        game = request.form.get('game', '').strip()
+        startTime = request.form.get('startTime', '').strip()
+        endTime = request.form.get('endTime', '').strip()
         eventDescription = request.form.get('eventDescription', '').strip()
+        location = request.form.get('eventLocation', '').strip()
+
 
     #Does what needs to be done if the fields are filled out.
-        if eventName and eventDate and eventTime and eventDescription:
+        if eventName and eventDate and eventType and game and startTime and endTime and eventDescription:
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             try:
-                cursor.execute('INSERT INTO events (name, date, time, description) VALUES (%s, %s, %s, %s)', (eventName, eventDate, eventTime, eventDescription))
-
+                cursor.execute('INSERT INTO generalevents (EventName, Date, StartTime, EndTime, Description, EventType, Game, Location) '
+                                'VALUES (%s, %s, %s, %s, %s, %s, %s, %s)',
+                                (eventName, eventDate, startTime, endTime, eventDescription, eventType, game, location))
                 #Confirms that the event is registered.
                 mysql.connection.commit()
                 msg = 'Event Registered!'

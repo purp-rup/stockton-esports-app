@@ -3,7 +3,14 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-<h2>Profile Page</h2>
+<div class="profile-header">
+    <h2>Profile Page</h2>
+    <div class="event-register-section">
+        <p class="temporary-note">Temporary location for testing purposes</p>
+        <a href="{{ url_for('eventRegister') }}" class="event-register-btn">Go to Event Register</a>
+    </div>
+</div>
+
 <div>
     <p>Your account details are below:</p>
     <table>

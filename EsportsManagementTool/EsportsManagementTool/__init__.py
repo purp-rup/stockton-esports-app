@@ -237,6 +237,8 @@ def eventRegister():
 
     #Uses the event-register html file to render the page.
     return render_template('event-register.html', msg=msg)
+
+
 @app.route('/calendar')
 def calendar():
     events = [

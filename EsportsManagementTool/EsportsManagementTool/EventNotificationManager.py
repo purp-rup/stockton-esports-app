@@ -1,86 +1,87 @@
 from EsportsManagementTool import app
+from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_mysqldb import MySQL
+from flask_mail import Mail, Message
+import MySQLdb.cursors
+import bcrypt
+from dotenv import load_dotenv
+from datetime import datetime, timedelta
+
+mysql = MySQL()
+
 
 """DISCLAIMER: THIS CODE WAS GENERATED USING CLAUDE AI"""
 # UC-13: ChooseEventNotice - User Notification Preferences
 @app.route('/eventnotificationsettings', methods=['GET', 'POST'])
 def notification_settings():
     """Allow users to configure their event notification preferences"""
-    if 'user_id' not in session:
+    if 'loggedin' not in session:
         flash('Please log in to access notification settings.', 'warning')
         return redirect(url_for('login'))
 
-    user_id = session['user_id']
+    user_id = session['loggedin']
 
     if request.method == 'POST':
         enable_notifications = request.form.get('enable_notifications') == 'on'
         advance_notice_days = int(request.form.get('advance_notice_days', 1))
         advance_notice_hours = int(request.form.get('advance_notice_hours', 0))
 
-        conn = get_db_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        try:
+            # Check if preferences exist
+            cursor.execute("""
+                           SELECT id
+                           FROM notification_preferences
+                           WHERE user_id = %s
+                           """, (user_id,))
 
-                # Check if preferences exist
+            exists = cursor.fetchone()
+
+            if exists:
+                # Update existing preferences
                 cursor.execute("""
-                               SELECT id
-                               FROM notification_preferences
+                               UPDATE notification_preferences
+                               SET enable_notifications = %s,
+                                   advance_notice_days  = %s,
+                                   advance_notice_hours = %s,
+                                   updated_at           = NOW()
                                WHERE user_id = %s
-                               """, (user_id,))
+                               """, (enable_notifications, advance_notice_days,
+                                     advance_notice_hours, user_id))
+            else:
+                # Insert new preferences
+                cursor.execute("""
+                               INSERT INTO notification_preferences
+                               (user_id, enable_notifications, advance_notice_days,
+                                advance_notice_hours, created_at, updated_at)
+                               VALUES (%s, %s, %s, %s, NOW(), NOW())
+                               """, (user_id, enable_notifications, advance_notice_days,
+                                     advance_notice_hours))
 
-                exists = cursor.fetchone()
+            mysql.connection.commit()
+            flash('Notification preferences saved successfully!', 'success')
 
-                if exists:
-                    # Update existing preferences
-                    cursor.execute("""
-                                   UPDATE notification_preferences
-                                   SET enable_notifications = %s,
-                                       advance_notice_days  = %s,
-                                       advance_notice_hours = %s,
-                                       updated_at           = NOW()
-                                   WHERE user_id = %s
-                                   """, (enable_notifications, advance_notice_days,
-                                         advance_notice_hours, user_id))
-                else:
-                    # Insert new preferences
-                    cursor.execute("""
-                                   INSERT INTO notification_preferences
-                                   (user_id, enable_notifications, advance_notice_days,
-                                    advance_notice_hours, created_at, updated_at)
-                                   VALUES (%s, %s, %s, %s, NOW(), NOW())
-                                   """, (user_id, enable_notifications, advance_notice_days,
-                                         advance_notice_hours))
-
-                conn.commit()
-                flash('Notification preferences saved successfully!', 'success')
-
-            except Error as e:
-                conn.rollback()
-                flash(f'Error saving preferences: {e}', 'danger')
-            finally:
-                cursor.close()
-                conn.close()
+        finally:
+            cursor.close()
 
         return redirect(url_for('notification_settings'))
 
     # GET request - fetch current preferences
-    conn = get_db_connection()
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     preferences = None
 
-    if conn:
-        try:
-            cursor = conn.cursor(dictionary=True)
-            cursor.execute("""
-                           SELECT *
-                           FROM notification_preferences
-                           WHERE user_id = %s
-                           """, (user_id,))
-            preferences = cursor.fetchone()
-            cursor.close()
-        finally:
-            conn.close()
+    try:
+        cursor.execute("""
+                       SELECT *
+                       FROM notification_preferences
+                       WHERE user_id = %s
+                       """, (user_id,))
+        preferences = cursor.fetchone()
+    finally:
+        cursor.close()
 
-    return render_template('notification_settings.html', preferences=preferences)
+    return render_template('eventnotificationsettings.html', preferences=preferences)
 
 
 # UC-14: SendEventNotice - Automated Email Notifications
@@ -122,12 +123,9 @@ def check_and_send_notifications():
     Background task to check for upcoming events and send notifications
     based on user preferences (FREQ24, FREQ25)
     """
-    conn = get_db_connection()
-    if not conn:
-        return
 
     try:
-        cursor = conn.cursor(dictionary=True)
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
         # Get all users with notifications enabled
         cursor.execute("""
@@ -242,14 +240,10 @@ def check_and_send_notifications():
                                        VALUES (%s, %s, 'event', NOW())
                                        """, (user['user_id'], event['id']))
 
-        conn.commit()
+        mysql.connection.commit()
 
-    except Error as e:
-        print(f"Error in notification check: {e}")
-        conn.rollback()
     finally:
         cursor.close()
-        conn.close()
 
 
 # Initialize scheduler for background notifications

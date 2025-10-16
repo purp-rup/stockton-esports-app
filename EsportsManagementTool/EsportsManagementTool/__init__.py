@@ -12,9 +12,8 @@ import secrets
 from dotenv import load_dotenv
 import os
 from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
-import mysql.connector
-from mysql.connector import Error
+
+
 
 app = Flask(__name__)
 

@@ -53,6 +53,10 @@ app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
+# Home/Landing Page
+@app.route('/')
+def index():
+    return render_template('index.html')  #
 
 def send_verify_email(email, token):
     verify_url = url_for('verify_email', token=token, _external=True)
@@ -126,7 +130,7 @@ def login():
                         session['loggedin'] = True
                         session['id'] = account['id']
                         session['username'] = account['username']
-                        return redirect(url_for('profile'))
+                        return redirect(url_for('dashboard'))
                 else:
                     msg = 'Incorrect username/password!'
             else:
@@ -146,7 +150,7 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     msg = ''
     if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'passwordconfirm' in request.form and 'email' in request.form:
@@ -254,9 +258,25 @@ def calendar():
     ]
     return render_template("calendar.html", events=events)
 
-@app.route("/test")
-def test():
-    return "<p> This is a test </p>"
+# Dashboard Route
+@app.route('/dashboard')
+def dashboard():
+    if 'loggedin' not in session:
+        flash('Please log in to access the dashboard', 'error')
+        return redirect(url_for('login'))
+
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("SELECT * FROM users WHERE id = %s", (session['id'],))
+    user = cursor.fetchone()
+    cursor.close()
+
+    if not user:
+        session.clear()
+        flash('User not found', 'error')
+        return redirect(url_for('login'))
+
+    return render_template('dashboard.html', user=user)  # ← Make sure this line exists!
+
 
 # This is used for debugging, It will show the app routes that are registered.
 if __name__ != '__main__':

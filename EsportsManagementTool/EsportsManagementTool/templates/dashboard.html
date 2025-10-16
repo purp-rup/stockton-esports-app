@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Stockton Esports{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+    }
+
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    /* Tab Navigation */
+    .tab-navigation {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+    }
+
+    .tab-button {
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.875rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tab-button:hover {
+        background: var(--hover-bg);
+        color: var(--text-primary);
+    }
+
+    .tab-button.active {
+        background: var(--stockton-blue);
+        color: var(--stockton-black);
+    }
+
+    .tab-icon {
+        font-size: 1rem;
+    }
+
+    /* Tab Content */
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Content Cards */
+    .content-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .card-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-header h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .card-header p {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+    }
+
+    .empty-state p {
+        font-size: 0.875rem;
+    }
+
+    /* Profile Tab Specific */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+        text-align: center;
+    }
+
+    .avatar-container {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background: var(--stockton-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        font-weight: 700;
+        color: var(--stockton-black);
+        margin: 0 auto 1rem;
+    }
+
+    .profile-info {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .info-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
+
+    .info-value {
+        color: var(--text-primary);
+        font-weight: 400;
+    }
+
+    .profile-actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* Calendar Styles */
+    .calendar-container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 2rem;
+    }
+
+    .calendar-main {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .calendar-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .sidebar-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+
+    .sidebar-card h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 1024px) {
+        .calendar-container {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .avatar-container {
+            width: 150px;
+            height: 150px;
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, {{ user.firstname }}! Here's what's happening with your esports journey.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+        <button class="tab-button active" data-tab="calendar">
+            <span class="tab-icon">📅</span>
+            Calendar
+        </button>
+        <button class="tab-button" data-tab="profile">
+            <span class="tab-icon">👤</span>
+            Profile
+        </button>
+        <button class="tab-button" data-tab="rosters">
+            <span class="tab-icon">👥</span>
+            Rosters
+        </button>
+        <button class="tab-button" data-tab="events">
+            <span class="tab-icon">🎮</span>
+            Events
+        </button>
+        <button class="tab-button" data-tab="teams">
+            <span class="tab-icon">🏆</span>
+            Teams
+        </button>
+        {% if user.is_admin %}
+        <button class="tab-button" data-tab="admin">
+            <span class="tab-icon">🛡️</span>
+            Admin
+        </button>
+        {% endif %}
+    </div>
+
+    <!-- Calendar Tab -->
+    <div id="calendar" class="tab-content active">
+        <div class="calendar-container">
+            <div class="calendar-main">
+                <div class="card-header">
+                    <h2>Event Calendar</h2>
+                    <p>View all events and match schedules</p>
+                </div>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📅</div>
+                    <h3>Calendar View Coming Soon</h3>
+                    <p>The interactive calendar will be available here</p>
+                </div>
+            </div>
+            <div class="calendar-sidebar">
+                <div class="sidebar-card">
+                    <h3>Today's Events</h3>
+                    <p class="empty-state" style="padding: 2rem 0;">No events scheduled for today</p>
+                </div>
+                <div class="sidebar-card">
+                    <h3>Upcoming Events</h3>
+                    <p class="empty-state" style="padding: 2rem 0;">No upcoming events</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Your Profile</h2>
+                <p>View and manage your account information</p>
+            </div>
+
+            <div class="profile-grid">
+                <div class="profile-avatar">
+                    <div class="avatar-container">
+                        {{ user.firstname[0] }}{{ user.lastname[0] }}
+                    </div>
+                    <button class="btn btn-secondary">Change Avatar</button>
+                </div>
+
+                <div class="profile-info">
+                    <div class="info-row">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value">{{ user.firstname }} {{ user.lastname }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Username</div>
+                        <div class="info-value">{{ user.username }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">{{ user.email }}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Account Status</div>
+                        <div class="info-value">
+                            {% if user.is_verified %}
+                                <span style="color: var(--stockton-blue);">✓ Verified</span>
+                            {% else %}
+                                <span style="color: var(--stockton-yellow);">⚠ Pending Verification</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Member Since</div>
+                        <div class="info-value">{{ user.date.strftime('%B %d, %Y') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn btn-primary">Edit Profile</button>
+                <button class="btn btn-secondary">Change Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rosters Tab -->
+    <div id="rosters" class="tab-content">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Team Rosters</h2>
+                <p>View and manage competitive team rosters</p>
+            </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">👥</div>
+                <h3>No Rosters Yet</h3>
+                <p>Team rosters will appear here once created</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Tab -->
+    <div id="events" class="tab-content">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Events</h2>
+                <p>Manage matches, practices, and community events</p>
+            </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">🎮</div>
+                <h3>No Events Scheduled</h3>
+                <p>Events and matches will be displayed here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teams Tab -->
+    <div id="teams" class="tab-content">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Teams</h2>
+                <p>Browse and join esports teams</p>
+            </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">🏆</div>
+                <h3>No Teams Available</h3>
+                <p>Teams will be listed here once created</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Tab -->
+    {% if user.is_admin %}
+    <div id="admin" class="tab-content">
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Admin Panel</h2>
+                <p>Manage users, teams, and system settings</p>
+            </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">🛡️</div>
+                <h3>Admin Dashboard</h3>
+                <p>Administrative controls and analytics will be available here</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

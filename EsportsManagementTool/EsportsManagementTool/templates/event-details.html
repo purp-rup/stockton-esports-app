@@ -1,0 +1,92 @@
+<!--Claude AI assisted in the creation of this html document-->
+{% extends "layout.html" %}
+
+{% block title %}{{ event.name }} - Event Details{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='calendar.css') }}">
+
+<div class="event-details-wrapper">
+    <div class="event-details-header">
+        <h1>{{ event.name }}</h1>
+        <a href="{{ url_for('calendar') }}" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Calendar
+        </a>
+    </div>
+
+    <div class="event-details-card">
+        <div class="detail-section">
+            <div class="detail-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Date</h3>
+                <p>{{ event.date }}</p>
+            </div>
+        </div>
+
+        {% if event.start_time %}
+        <div class="detail-section">
+            <div class="detail-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Time</h3>
+                <p>
+                    {{ event.start_time }}
+                    {% if event.end_time %}
+                        - {{ event.end_time }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if event.location %}
+        <div class="detail-section">
+            <div class="detail-icon">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Location</h3>
+                <p>{{ event.location }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if event.game %}
+        <div class="detail-section">
+            <div class="detail-icon">
+                <i class="fas fa-gamepad"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Game</h3>
+                <p>{{ event.game }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if event.event_type %}
+        <div class="detail-section">
+            <div class="detail-icon">
+                <i class="fas fa-tag"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Event Type</h3>
+                <p>{{ event.event_type }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="detail-section full-width">
+            <div class="detail-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="detail-content">
+                <h3>Description</h3>
+                <p>{{ event.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

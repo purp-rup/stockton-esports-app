@@ -5,6 +5,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_mysqldb import MySQL
 from flask_mail import Mail, Message
+from datetime import datetime
+import calendar as cal
 import MySQLdb.cursors
 import re
 import bcrypt
@@ -245,18 +247,12 @@ def eventRegister():
     return render_template('event-register.html', msg=msg)
 
 
-@app.route('/calendar')
-def calendar():
-    events = [
-        {"date": "2025-10-01", "title": "smash practice of doom"},
-        {"date": "2025-10-03", "title": "fortnite sesh"},
-        {"date": "2025-10-05", "title": "d's birthday party"},
-    ]
-    return render_template("calendar.html", events=events)
-
 @app.route("/test")
 def test():
     return "<p> This is a test </p>"
+
+from EsportsManagementTool.calendar_routes import register_calendar_routes
+register_calendar_routes(app, mysql)
 
 # This is used for debugging, It will show the app routes that are registered.
 if __name__ != '__main__':

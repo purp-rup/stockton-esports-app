@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 
 mysql = MySQL()
-
+mail = Mail()
 
 """DISCLAIMER: THIS CODE WAS GENERATED USING CLAUDE AI"""
 # UC-13: ChooseEventNotice - User Notification Preferences
@@ -95,9 +95,9 @@ def send_event_notification(user_email, user_name, event_type, event_details):
 
         This is a reminder about your upcoming {event_type.lower()}:
 
-        Event: {event_details['title']}
+        Event: {event_details['EventName']}
         Date: {event_details['date'].strftime('%B %d, %Y')}
-        Time: {event_details['time'].strftime('%I:%M %p')}
+        Time: {event_details['StartTime'].strftime('%I:%M %p')}
         Location: {event_details['location']}
 
         {'Match Details:' if event_type == 'Match' else 'Event Details:'}
@@ -121,7 +121,7 @@ def send_event_notification(user_email, user_name, event_type, event_details):
 def check_and_send_notifications():
     """
     Background task to check for upcoming events and send notifications
-    based on user preferences (FREQ24, FREQ25)
+    to all users based on their notification preferences
     """
 
     try:
@@ -131,8 +131,7 @@ def check_and_send_notifications():
         cursor.execute("""
                        SELECT u.id as user_id,
                               u.email,
-                              u.name,
-                              u.user_type,
+                              u.firstname,
                               np.advance_notice_days,
                               np.advance_notice_hours
                        FROM users u
@@ -150,98 +149,65 @@ def check_and_send_notifications():
             )
             notification_time = datetime.now() + advance_time
 
-            # FREQ24: Send Players reminders about upcoming matches
-            if user['user_type'] == 'player':
-                cursor.execute("""
-                               SELECT m.id,
-                                      m.title,
-                                      m.match_date as date,
-                        m.match_time as time,
-                        m.location,
-                        m.description
-                               FROM matches m
-                                   JOIN match_participants mp
-                               ON m.id = mp.match_id
-                               WHERE mp.user_id = %s
-                                 AND m.match_date = DATE (%s)
-                                 AND m.match_time BETWEEN %s
-                                 AND %s
-                                 AND NOT EXISTS (
-                                   SELECT 1 FROM sent_notifications sn
-                                   WHERE sn.user_id = %s
-                                 AND sn.event_id = m.id
-                                 AND sn.event_type = 'match'
-                                 AND sn.sent_at >= DATE_SUB(NOW()
-                                   , INTERVAL 1 DAY)
-                                   )
-                               """, (user['user_id'], notification_time.date(),
-                                     notification_time.time(),
-                                     (notification_time + timedelta(minutes=30)).time(),
-                                     user['user_id']))
+            # Get all upcoming events from generalevents table
+            cursor.execute("""
+                           SELECT ge.EventID,
+                                  ge.EventName,
+                                  ge.Date as date,
+                                  ge.StartTime,
+                                  ge.location,
+                                  ge.description,
+                                  ge.EventType as event_type
+                           FROM generalevents ge
+                           WHERE ge.Date = DATE (%s)
+                             AND ge.StartTime BETWEEN %s
+                             AND %s
+                             AND NOT EXISTS (
+                               SELECT 1 FROM sent_notifications sn
+                               WHERE sn.user_id = %s
+                             AND sn.event_id = ge.EventID
+                             AND sn.event_type = ge.EventType
+                             AND sn.sent_at >= DATE_SUB(NOW()
+                               , INTERVAL 1 DAY)
+                               )
+                           """, (notification_time.date(),
+                                 notification_time.time(),
+                                 (notification_time + timedelta(hours=1)).time(),
+                                 user['user_id']))
 
-                matches = cursor.fetchall()
+            events = cursor.fetchall()
 
-                for match in matches:
-                    if send_event_notification(
-                            user['email'],
-                            user['name'],
-                            'Match',
-                            match
-                    ):
-                        # Log sent notification
-                        cursor.execute("""
-                                       INSERT INTO sent_notifications
-                                           (user_id, event_id, event_type, sent_at)
-                                       VALUES (%s, %s, 'match', NOW())
-                                       """, (user['user_id'], match['id']))
+            # Send notifications for all events
+            for event in events:
+                # Convert timedelta to time object if needed
+                if isinstance(event['StartTime'], timedelta):
+                    total_seconds = int(event['StartTime'].total_seconds())
+                    hours = total_seconds // 3600
+                    minutes = (total_seconds % 3600) // 60
+                    seconds = total_seconds % 60
+                    event['StartTime'] = datetime.min.time().replace(hour=hours, minute=minutes, second=seconds)
 
-            # FREQ25: Send Community Members reminders for upcoming events
-            if user['user_type'] in ['community_member', 'player', 'admin']:
-                cursor.execute("""
-                               SELECT e.id,
-                                      e.title,
-                                      e.event_date as date,
-                        e.event_time as time,
-                        e.location,
-                        e.description
-                               FROM events e
-                                   JOIN event_registrations er
-                               ON e.id = er.event_id
-                               WHERE er.user_id = %s
-                                 AND e.event_date = DATE (%s)
-                                 AND e.event_time BETWEEN %s
-                                 AND %s
-                                 AND NOT EXISTS (
-                                   SELECT 1 FROM sent_notifications sn
-                                   WHERE sn.user_id = %s
-                                 AND sn.event_id = e.id
-                                 AND sn.event_type = 'event'
-                                 AND sn.sent_at >= DATE_SUB(NOW()
-                                   , INTERVAL 1 DAY)
-                                   )
-                               """, (user['user_id'], notification_time.date(),
-                                     notification_time.time(),
-                                     (notification_time + timedelta(minutes=30)).time(),
-                                     user['user_id']))
+                # Capitalize event type for display (e.g., 'match' -> 'Match', 'tournament' -> 'Tournament')
+                event_label = event['event_type'].capitalize() if event['event_type'] else 'Event'
 
-                events = cursor.fetchall()
-
-                for event in events:
-                    if send_event_notification(
-                            user['email'],
-                            user['name'],
-                            'Event',
-                            event
-                    ):
-                        # Log sent notification
-                        cursor.execute("""
-                                       INSERT INTO sent_notifications
-                                           (user_id, event_id, event_type, sent_at)
-                                       VALUES (%s, %s, 'event', NOW())
-                                       """, (user['user_id'], event['id']))
+                if send_event_notification(
+                        user['email'],
+                        user['firstname'],
+                        event_label,
+                        event
+                ):
+                    # Log sent notification
+                    cursor.execute("""
+                                   INSERT INTO sent_notifications
+                                       (user_id, event_id, event_type, sent_at)
+                                   VALUES (%s, %s, %s, NOW())
+                                   """, (user['user_id'], event['EventID'], event['event_type']))
 
         mysql.connection.commit()
 
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
     finally:
         cursor.close()
 

@@ -85,7 +85,7 @@ def verify_email(token):
                 (user['id'],)
             )
             mysql.connection.commit()
-            flash('Email is successfully verified! You can now log in.', 'success')
+            flash('Email is successfully verified, welcome to Stockton Esports! You can now log in.', 'success')
             return redirect(url_for('login'))
         else:
             flash('ERROR: Verification link is invalid/expired.', 'error')
@@ -181,7 +181,7 @@ def register():
                     'INSERT INTO users (firstname, lastname, username, password, email) VALUES (%s, %s, %s, %s, %s)',
                     (firstname, lastname, username, hashed_password, email))
                 mysql.connection.commit()
-                msg = 'You have successfully registered! Welcome to Stockton Esports!'
+                msg = 'You have successfully created an account! Please check your email for verification!'
         finally:
             cursor.close()
 

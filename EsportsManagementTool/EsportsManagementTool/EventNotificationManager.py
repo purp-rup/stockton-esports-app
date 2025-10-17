@@ -20,7 +20,7 @@ def notification_settings():
         flash('Please log in to access notification settings.', 'warning')
         return redirect(url_for('login'))
 
-    user_id = session['loggedin']
+    user_id = session['id']
 
     if request.method == 'POST':
         enable_notifications = request.form.get('enable_notifications') == 'on'

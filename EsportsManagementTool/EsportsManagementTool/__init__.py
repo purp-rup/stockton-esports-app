@@ -258,25 +258,7 @@ def calendar():
     ]
     return render_template("calendar.html", events=events)
 
-# Dashboard Route
-@app.route('/dashboard')
-def dashboard():
-    if 'loggedin' not in session:
-        flash('Please log in to access the dashboard', 'error')
-        return redirect(url_for('login'))
-
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("SELECT * FROM users WHERE id = %s", (session['id'],))
-    user = cursor.fetchone()
-    cursor.close()
-
-    if not user:
-        session.clear()
-        flash('User not found', 'error')
-        return redirect(url_for('login'))
-
-    return render_template('dashboard.html', user=user)  # ← Make sure this line exists!
-
+import EsportsManagementTool.dashboard
 
 # This is used for debugging, It will show the app routes that are registered.
 if __name__ != '__main__':

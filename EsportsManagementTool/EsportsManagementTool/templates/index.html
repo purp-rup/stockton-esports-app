@@ -4,12 +4,35 @@
 
 {% block extra_css %}
 <style>
-    /* Hero Section */
+    /* Textured background */
+    body {
+        background:
+            repeating-linear-gradient(
+                45deg,
+                #0a0a0a,
+                #0a0a0a 10px,
+                #0d0d0d 10px,
+                #0d0d0d 20px
+            ),
+            radial-gradient(circle at 20% 50%, rgba(121, 189, 233, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(121, 189, 233, 0.03) 0%, transparent 50%),
+            #0a0a0a;
+    }
+
+    /* Hero Section - Full viewport height minus navbar */
     .hero {
+        min-height: calc(100vh - 73px); /* Subtract navbar height */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        padding: 6rem 2rem 4rem;
-        background: linear-gradient(180deg, var(--card-bg) 0%, var(--dark-bg) 100%);
-        border-bottom: 1px solid var(--border-color);
+        padding: 2rem;
+        position: relative;
+    }
+
+    .hero-content {
+        max-width: 800px;
     }
 
     .hero h1 {
@@ -19,10 +42,7 @@
     }
 
     .hero-gradient {
-        background: linear-gradient(135deg, var(--stockton-blue), var(--stockton-yellow));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: var(--stockton-blue);
     }
 
     .hero p {
@@ -45,9 +65,44 @@
         font-size: 1rem;
     }
 
+    /* Scroll indicator */
+    .scroll-indicator {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        animation: bounce 2s infinite;
+    }
+
+    .scroll-arrow {
+        font-size: 2rem;
+        color: var(--stockton-blue);
+    }
+
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+            transform: translateX(-50%) translateY(0);
+        }
+        40% {
+            transform: translateX(-50%) translateY(-10px);
+        }
+        60% {
+            transform: translateX(-50%) translateY(-5px);
+        }
+    }
+
     /* Features Section */
     .features {
         padding: 6rem 2rem;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
     }
 
     .features-header {
@@ -76,7 +131,7 @@
     }
 
     .feature-card {
-        background: var(--card-bg);
+        background: var(--dark-bg);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 2rem;
@@ -107,9 +162,7 @@
 
     /* Stats Section */
     .stats {
-        background: var(--card-bg);
-        border-top: 1px solid var(--border-color);
-        border-bottom: 1px solid var(--border-color);
+        background: var(--dark-bg);
         padding: 4rem 2rem;
     }
 
@@ -124,10 +177,7 @@
 
     .stat-item h3 {
         font-size: 3rem;
-        background: linear-gradient(135deg, var(--stockton-blue), var(--stockton-yellow));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: var(--stockton-blue);
         margin-bottom: 0.5rem;
     }
 
@@ -140,6 +190,9 @@
     .cta {
         text-align: center;
         padding: 6rem 2rem;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border-color);
+        margin-bottom: 0;
     }
 
     .cta h2 {
@@ -172,14 +225,18 @@
         .stat-item h3 {
             font-size: 2rem;
         }
+
+        .scroll-indicator {
+            bottom: 1rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
+<!-- Hero Section - Full viewport -->
 <section class="hero">
-    <div class="container">
+    <div class="hero-content">
         <h1>
             Welcome to<br>
             <span class="hero-gradient">Stockton Esports</span>
@@ -196,6 +253,12 @@
                 <a href="{{ url_for('login') }}" class="btn btn-secondary btn-large">Sign In</a>
             {% endif %}
         </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+        <span>Scroll to explore</span>
+        <div class="scroll-arrow">↓</div>
     </div>
 </section>
 
@@ -292,15 +355,24 @@
 <!-- CTA Section -->
 <section class="cta">
     <div class="container">
-        <h2>Ready to Level Up?</h2>
-        <p>
-            Join the Stockton Esports community today and be part of something bigger.
-            Whether you're a competitor or a casual player, there's a place for you here.
-        </p>
-        {% if not current_user %}
-        <div class="hero-actions">
-            <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">Create Account</a>
-        </div>
+        {% if session.loggedin %}
+            <h2>Welcome Back, {{ session.username }}!</h2>
+            <p>
+                Your dashboard is ready and waiting. Check your upcoming events, manage your teams,
+                and stay connected with the Stockton Esports community.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-large">Go to Dashboard</a>
+            </div>
+        {% else %}
+            <h2>Ready to Level Up?</h2>
+            <p>
+                Join the Stockton Esports community today and be part of something bigger.
+                Whether you're a competitor or a casual player, there's a place for you here.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-large">Create Account</a>
+            </div>
         {% endif %}
     </div>
 </section>

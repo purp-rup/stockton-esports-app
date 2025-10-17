@@ -4,10 +4,13 @@
 
 {% block extra_css %}
 <style>
-    .dashboard-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 2rem 2rem;
+    /* Font Awesome CDN */
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+    /* Make dashboard full viewport height */
+    main {
+        min-height: calc(100vh - 73px) !important;
+        padding: 2rem 0 !important;
     }
 
     .dashboard-header {
@@ -29,41 +32,88 @@
         background: var(--card-bg);
         border: 1px solid var(--border-color);
         border-radius: 12px;
-        padding: 0.5rem;
+        padding: 0;
         margin-bottom: 2rem;
         display: flex;
-        gap: 0.5rem;
+        gap: 0;
         overflow-x: auto;
     }
 
     .tab-button {
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 2rem;
         background: transparent;
         border: none;
+        border-bottom: 3px solid transparent;
         color: var(--text-secondary);
         font-weight: 500;
         font-size: 0.875rem;
-        border-radius: 8px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         cursor: pointer;
         transition: all 0.2s;
         white-space: nowrap;
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        flex: 1;
+        justify-content: center;
     }
 
     .tab-button:hover {
-        background: var(--hover-bg);
         color: var(--text-primary);
+        background: transparent;
     }
 
     .tab-button.active {
-        background: var(--stockton-blue);
-        color: var(--stockton-black);
+        background: transparent;
+        color: var(--stockton-blue);
+        border-bottom-color: var(--stockton-blue);
     }
 
     .tab-icon {
+        font-size: 1.125rem;
+    }
+
+    /* Mobile Tab Dropdown */
+    .tab-dropdown {
+        display: none;
+        width: 100%;
+        padding: 1rem 1.25rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        color: var(--text-primary);
         font-size: 1rem;
+        font-weight: 500;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        cursor: pointer;
+        margin-bottom: 2rem;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2379BDE9' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 3rem;
+    }
+
+    .tab-dropdown:focus {
+        outline: none;
+        border-color: var(--stockton-blue);
+        box-shadow: 0 0 0 3px rgba(121, 189, 233, 0.1);
+    }
+
+    .tab-dropdown option {
+        background: var(--card-bg);
+        color: var(--text-primary);
+        padding: 1rem;
+    }
+
+    @media (max-width: 800px) {
+        .tab-navigation {
+            display: none;
+        }
+
+        .tab-dropdown {
+            display: block;
+        }
     }
 
     /* Tab Content */
@@ -237,31 +287,43 @@
         <p>Welcome back, {{ user.firstname }}! Here's what's happening with your esports journey.</p>
     </div>
 
+    <!-- Mobile Tab Dropdown -->
+    <select class="tab-dropdown" id="tabDropdown">
+        <option value="calendar">📅 Calendar</option>
+        <option value="profile">👤 Profile</option>
+        <option value="rosters">👥 Rosters</option>
+        <option value="events">📆 Events</option>
+        <option value="teams">🎮 Teams</option>
+        {% if user.is_admin %}
+        <option value="admin">🛡️ Admin</option>
+        {% endif %}
+    </select>
+
     <!-- Tab Navigation -->
     <div class="tab-navigation">
         <button class="tab-button active" data-tab="calendar">
-            <span class="tab-icon">📅</span>
+            <i class="fa-regular fa-calendar tab-icon"></i>
             Calendar
         </button>
         <button class="tab-button" data-tab="profile">
-            <span class="tab-icon">👤</span>
+            <i class="fa-regular fa-user tab-icon"></i>
             Profile
         </button>
         <button class="tab-button" data-tab="rosters">
-            <span class="tab-icon">👥</span>
+            <i class="fa-solid fa-users tab-icon"></i>
             Rosters
         </button>
         <button class="tab-button" data-tab="events">
-            <span class="tab-icon">🎮</span>
+            <i class="fa-regular fa-calendar-days tab-icon"></i>
             Events
         </button>
         <button class="tab-button" data-tab="teams">
-            <span class="tab-icon">🏆</span>
+            <i class="fa-solid fa-gamepad tab-icon"></i>
             Teams
         </button>
         {% if user.is_admin %}
         <button class="tab-button" data-tab="admin">
-            <span class="tab-icon">🛡️</span>
+            <i class="fa-solid fa-shield-halved tab-icon"></i>
             Admin
         </button>
         {% endif %}
@@ -409,6 +471,7 @@
     </div>
     {% endif %}
 </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -417,19 +480,35 @@
     document.addEventListener('DOMContentLoaded', function() {
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
+        const tabDropdown = document.getElementById('tabDropdown');
 
+        function switchTab(targetTab) {
+            // Remove active class from all buttons and contents
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to corresponding button and content
+            const activeButton = document.querySelector(`[data-tab="${targetTab}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+            document.getElementById(targetTab).classList.add('active');
+
+            // Update dropdown value
+            tabDropdown.value = targetTab;
+        }
+
+        // Handle button clicks
         tabButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const targetTab = this.getAttribute('data-tab');
-
-                // Remove active class from all buttons and contents
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
-
-                // Add active class to clicked button and corresponding content
-                this.classList.add('active');
-                document.getElementById(targetTab).classList.add('active');
+                switchTab(targetTab);
             });
+        });
+
+        // Handle dropdown change
+        tabDropdown.addEventListener('change', function() {
+            switchTab(this.value);
         });
     });
 </script>

@@ -33,9 +33,16 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 70%;
             margin: 0 auto;
             padding: 0 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 90%;
+            }
         }
 
         /* Navigation */
@@ -67,19 +74,28 @@
         .brand-icon {
             width: 40px;
             height: 40px;
-            background: var(--stockton-blue);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            color: var(--stockton-black);
+            overflow: hidden;
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .navbar-menu {
             display: flex;
             align-items: center;
             gap: 1rem;
+        }
+
+        .navbar-menu form {
+            margin: 0;
+            display: inline-block;
         }
 
         .user-info {
@@ -99,11 +115,13 @@
             border: none;
             cursor: pointer;
             font-size: 0.875rem;
+            display: inline-block;
         }
 
         .btn-primary {
             background: var(--stockton-blue);
             color: var(--stockton-black);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .btn-primary:hover {
@@ -115,6 +133,7 @@
             background: transparent;
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         .btn-secondary:hover {
@@ -159,7 +178,7 @@
         /* Main Content */
         main {
             min-height: calc(100vh - 200px);
-            padding: 2rem 0;
+            padding: 1rem 0;
         }
 
         /* Footer */
@@ -167,7 +186,6 @@
             background: var(--card-bg);
             border-top: 1px solid var(--border-color);
             padding: 2rem 0;
-            margin-top: 4rem;
         }
 
         .footer-content {
@@ -193,6 +211,13 @@
             color: var(--stockton-blue);
         }
 
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .user-info {
+                display: none;
+            }
+        }
+
         {% block extra_css %}{% endblock %}
     </style>
 </head>
@@ -201,7 +226,9 @@
     <nav class="navbar">
         <div class="container navbar-content">
             <a href="{{ url_for('index') }}" class="navbar-brand">
-                <div class="brand-icon">SE</div>
+                <div class="brand-icon">
+                    <img src="{{ url_for('static', filename='images/stockton-esports-logo.png') }}" alt="Stockton Esports" onerror="this.style.display='none'; this.parentElement.innerHTML='SE';">
+                </div>
                 <span>Stockton Esports</span>
             </a>
             <div class="navbar-menu">
